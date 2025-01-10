@@ -2,7 +2,7 @@
 #+AUTHOR: Bruce Durling
 #+EMAIL: bld@otfrom.com
 #+PROPERTY: header-args :mkdirp yes :noweb-prefix no
-#+options: ':t toc:t num:t author:t email:t
+#+options: toc:4 num:t author:t email:t
 #+startup: content indent
 #+macro: latest-export-date (eval (format-time-string "%F %T %z"))
 #+macro: word-count (eval (count-words (point-min) (point-max)))
@@ -31,8 +31,6 @@ going to be borrowing a lot from [[https://protesilaos.com/][Prot]]'s [[https://
 
 Thanks to [[https://mathstodon.xyz/@anemofilia/113803804376833799][anemofilia]] I've learned more about [[https://orgmode.org/manual/Noweb-Reference-Syntax.html][noweb syntax]] and how [[https://social.boiledscript.com/@hako][hako]]
 configures [[https://codeberg.org/hako/Testament/src/branch/trunk/cfg/dorphine.org][dorphine]] and [[https://codeberg.org/hako/Testament/src/branch/trunk/cfg/gokuraku.org][gokuraku]] for Guix.
-
-#+toc: headlines 8 insert TOC here, with eight headline levels
 
 * Files to Create
 
