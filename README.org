@@ -83,6 +83,32 @@ This is the bulk of the emacs configuration.
   ;;; Code:
   <<init-helpers>>
 
+  <<pembrokensis-defaults>>
+  <<magit>>
+
+  <<init-coda>>
+
+  (provide 'init)
+  ;;; init.el ends here.
+#+end_src
+
+** mastodonc-init.el
+
+I'm helping out a friend with their emacs configuration. They don't
+want nearly as much as I do, so they'll need a different init.el to
+copy over. I'd like to produce that from here.
+
+#+begin_src emacs-lisp :tangle mastodonc-init.el :noweb yes
+  ;;; init --- Initialise emacs
+
+  ;;; Commentary:
+
+  ;; This has been produced from README.org
+
+  ;;; Code:
+  <<init-helpers>>
+
+  <<pembrokensis-defaults>>
   <<magit>>
 
   <<init-coda>>
@@ -157,28 +183,6 @@ This is the bulk of the emacs configuration.
               :repl/toggle js-comint-start-or-switch-to-repl)))
 #+end_src
 
-** mastodonc-init.el
-
-I'm helping out a friend with their emacs configuration. They don't
-want nearly as much as I do, so they'll need a different init.el to
-copy over. I'd like to produce that from here.
-
-#+begin_src emacs-lisp :tangle mastodonc-init.el :noweb yes
-  ;;; init --- Initialise emacs
-
-  ;;; Commentary:
-
-  ;; This has been produced from README.org
-
-  ;;; Code:
-  <<init-helpers>>
-
-  <<init-coda>>
-
-  (provide 'init)
-  ;;; init.el ends here.
-#+end_src
-
 ** TODO guix configuration
 
 ** TODO nix configuration
@@ -250,14 +254,148 @@ early-init.el]].
                     gc-cons-percentage 0.1)))
 #+end_src
 
-* Defaults
+* Pembrokensis Defaults
 
-This is stolen from corgi-defaults
+https://www.gnu.org/software/emacs/manual/html_mono/emacs.html#Fetching-Package-Sources
+https://elpa.gnu.org/devel/doc/use-package.html#Installing-packages
 
-#+begin_src emacs-lisp
+This is stolen from [[https://github.com/corgi-emacs/corgi-packages/blob/main/corgi-defaults/corgi-defaults.el][corgi-defaults]]
+
+#+begin_src emacs-lisp :noweb-ref pembrokensis-defaults
   ;; Change a bunch of Emacs defaults, from disabling the menubar and toolbar,
   ;; to fixing modifier keys on Mac and disabling the system bell.
-  ;; (use-package corgi-defaults)
+  (use-package emacs
+    :init
+    (setq inhibit-startup-message t)
+
+    ;; Allow pasting selection outside of Emacs
+    (setq select-enable-clipboard t)
+
+    ;; Show keystrokes in progress
+    (setq echo-keystrokes 0.1)
+
+    ;; Move files to trash when deleting
+    (setq delete-by-moving-to-trash t)
+
+    ;; Real emacs knights don't use shift to mark things
+    (setq shift-select-mode nil)
+
+    ;; Always display line and column numbers
+    (setq line-number-mode t)
+    (setq column-number-mode t)
+
+    ;; Lines should be 80 characters wide, not 72
+    (setq fill-column 80)
+    (set-default 'fill-column 80)
+
+    ;; Never insert tabs
+    (set-default 'indent-tabs-mode nil)
+
+    ;; Show me empty lines after buffer end
+    (set-default 'indicate-empty-lines t)
+
+    ;; Don't break lines for me, please
+    ;; (setq-default truncate-lines t)
+
+    ;; Allow recursive minibuffers
+    (setq enable-recursive-minibuffers t)
+
+    ;; Don't be so stingy on the memory, we have lots now. It's the distant future.
+    (setq gc-cons-threshold 2000000)
+
+    ;; Sentences do not need double spaces to end. Period.
+    (set-default 'sentence-end-double-space nil)
+
+    ;; Nic says eval-expression-print-level needs to be set to nil (turned off) so
+    ;; that you can always see what's happening.
+    (setq eval-expression-print-level nil)
+    
+    :config
+    (if (fboundp 'menu-bar-mode) (menu-bar-mode -1))
+    (if (fboundp 'tool-bar-mode) (tool-bar-mode -1))
+    (if (fboundp 'scroll-bar-mode) (scroll-bar-mode -1))
+
+    ;; UTF-8 please
+    (setq locale-coding-system 'utf-8)   ; pretty
+    (set-terminal-coding-system 'utf-8)  ; pretty
+    (set-keyboard-coding-system 'utf-8)  ; pretty
+    (set-selection-coding-system 'utf-8) ; please
+    (prefer-coding-system 'utf-8)        ; with sugar on top
+
+    ;; Show active region
+    (transient-mark-mode 1)
+    (make-variable-buffer-local 'transient-mark-mode)
+    (put 'transient-mark-mode 'permanent-local t)
+    (setq-default transient-mark-mode t)
+
+    ;; When Emacs is ran in GUI mode, configure common Emoji fonts, making it more
+    ;; likely that Emoji will work out of the box
+    (when (display-graphic-p)
+      (set-fontset-font t 'symbol "Apple Color Emoji")
+      (set-fontset-font t 'symbol "Noto Color Emoji" nil 'append)
+      (set-fontset-font t 'symbol "Segoe UI Emoji" nil 'append)
+      (set-fontset-font t 'symbol "Symbola" nil 'append)))
+
+  (use-package subword
+    :config
+    ;; Easily navigate sillycased words
+    (global-subword-mode 1))
+
+  (use-package files
+    :init
+    ;; Don't make backup~ files
+    ;; (setq make-backup-files nil)
+
+    (when (not (file-directory-p (expand-file-name "backups" user-emacs-directory)))
+      (make-directory (expand-file-name "backups" user-emacs-directory)))
+
+    (when (not (file-directory-p (expand-file-name "auto-save-list" user-emacs-directory)))
+      (make-directory (expand-file-name "auto-save-list" user-emacs-directory)))
+
+    ;; Put backups and auto-save files in subdirectories, so the
+    ;; user-emacs-directory doesn't clutter
+    (setq backup-directory-alist
+          `(("." . ,(expand-file-name "backups" user-emacs-directory)))
+          auto-save-file-name-transforms
+          `((".*" ,(expand-file-name "auto-save-list/" user-emacs-directory) t))))
+
+  (use-package electric
+    :init
+    ;; No electric indent
+    (setq electric-indent-mode nil))
+
+  (use-package uniquify
+    :init
+    (setq uniquify-buffer-name-style 'forward))
+
+  (use-package vc
+    :init
+    ;; Stop asking about following symlinks to version controlled files
+    (setq vc-follow-symlinks t))
+
+  (use-package terminal
+    :init
+    (setq ring-bell-function 'ignore))
+
+  ;; Auto refresh buffers
+  ;; Also auto refresh dired, but be quiet about it
+  (use-package autorevert
+    :init
+    (setq global-auto-revert-non-file-buffers t)
+    (setq auto-revert-verbose nil)
+    :config
+    (add-hook 'dired-mode-hook #'auto-revert-mode)
+    (global-auto-revert-mode 1))
+
+  ;; Transparently open compressed files
+  (use-package jka-cmpr-hook
+    :config
+    (auto-compression-mode t))
+
+  ;; Enable syntax highlighting for older Emacsen that have it off
+  (use-package font-core
+    :config
+    (global-font-lock-mode t))
 #+end_src
 
 * Editor
