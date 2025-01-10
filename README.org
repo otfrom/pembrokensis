@@ -46,8 +46,21 @@ That I haven't figured out yet.
 
 ** early-init.el
 
+This gets called first and before much has happened. It is where we
+need to set things like our package installation strategy.
+
 #+begin_src emacs-lisp :tangle early-init.el :noweb yes
+  ;;; early-init --- Initialise emacs
+
+  ;;; Commentary:
+
+  ;; This has been produced from README.org
+
+  ;;; Code:
+
   ;; This is where we define things that happen very early in startup
+  <<gc-config>>
+
   <<early-init-helpers>>
 
   <<early-init-packages>>
@@ -58,8 +71,106 @@ That I haven't figured out yet.
 
 ** init.el
 
+This is the bulk of the emacs configuration.
+
 #+begin_src emacs-lisp :tangle init.el :noweb yes
-  ;; Header information here
+  ;;; init --- Initialise emacs
+
+  ;;; Commentary:
+
+  ;; This has been produced from README.org
+
+  ;;; Code:
+  <<init-helpers>>
+
+  <<magit>>
+
+  <<init-coda>>
+
+  (provide 'init)
+  ;;; init.el ends here.
+#+end_src
+
+** user-keys.el
+
+#+begin_src emacs-lisp :tangle user-keys.el :noweb yes
+  ;;; -*- no-byte-compile: t -*-
+
+  ;; This is your user keys file, here you can configure key bindings that will
+  ;; get added to Corgi. You can also override Corgi's default bindings this way.
+  ;;
+  ;; Bindings here are nested, e.g. `("SPC" ("b" ("k" kill-buffer)))' means that
+  ;; "space" followed by "b" and then "k" will invoke `M-x kill-buffer'.
+  ;;
+  ;; You can add a descriptions before the command, this will show up in a pop-up
+  ;; when you press the prefix key and wait a bit. (This uses which-key)
+  ;;
+  ;; `("SPC" ("b" ("k" "Choose a buffer to kill" kill-buffer)))'
+  ;;
+  ;; Instead of a prefix key you can use a symbol like `normal' or `insert', which
+  ;; designates the Evil state (what vim calls the mode). `global' means any
+  ;; state, `normal|visual' means either normal or visual.
+  ;;
+  ;; Instead of a command like `kill-buffer' you can put a keyword like
+  ;; `:eval/buffer'. This is called a "signal". In the `corgi-signals' (or
+  ;; `user-signals') file these are bound to specific commands based on the major
+  ;; mode. E.g. in Emacs Lisp `:eval/buffer' means `eval-buffer', whereas in
+  ;; Clojure it means `cider-eval-buffer'.
+
+  (bindings
+   ;; "global" bindings are always active regardless of Evil's "state" (= vim mode)
+   ;; If you don't provide this the default is `normal'.
+   (global
+    )
+
+   ;; Bindings for commands are usually only active in normal and visual state.
+   (normal|visual
+    ("SPC"
+     ("0" "Select Treemacs" treemacs-select-window)
+     ("f"
+      ("t" "Turn Treemacs on/off" treemacs)
+      ("T" "Focus current file in file tree" treemacs-find-file))
+     )))
+#+end_src
+
+** user-signals
+
+#+begin_src emacs-lisp :tangle user-signals.el :noweb yes
+  ;;; -*- no-byte-compile: t -*-
+
+  ;; This is your user signals file, here you configure how certain signals are
+  ;; handled in specific modes.
+
+  ;; In this Corgi sample config we've included `js-comint' to demonstrate how
+  ;; that works. This package allows evaluating JavaScript directly from a buffer.
+  ;; Evaluating the expression before the cursor is done in Corgi with `, RET' (or
+  ;; `, e e'), by telling Corgi that in JS buffers this means `js-send-last-sexp'
+  ;; we get the same bindings there.
+  ;;
+  ;; If you prefer some other key binding for "eval", then you can do that in
+  ;; `user-keys.el', and your new binding will do the right thing regardless of
+  ;; the language/mode you are in.
+
+  ((js-mode ( :eval/last-sexp js-send-last-sexp
+              :eval/buffer js-send-buffer
+              :eval/region js-send-region
+              :repl/toggle js-comint-start-or-switch-to-repl)))
+#+end_src
+
+** mastodonc-init.el
+
+I'm helping out a friend with their emacs configuration. They don't
+want nearly as much as I do, so they'll need a different init.el to
+copy over. I'd like to produce that from here.
+
+#+begin_src emacs-lisp :tangle mastodonc-init.el :noweb yes
+  ;;; init --- Initialise emacs
+
+  ;;; Commentary:
+
+  ;; This has been produced from README.org
+
+  ;;; Code:
   <<init-helpers>>
 
   <<init-coda>>
@@ -121,6 +232,166 @@ Guix or NixOS.
     #+begin_src emacs-lisp :noweb-ref early-init-packages
     (setopt load-prefer-newer t)
     #+end_src
+
+* early-init setup
+
+We want to set things in early init to speed up startup as we have a
+lot more ram now than when emacs was thought of as *Eight Megs and
+Continuously Swapping*. This is from the [[https://github.com/corgi-emacs/corgi/blob/main/sample-config/early-init.el][corgi sample config
+early-init.el]].
+
+#+begin_src emacs-lisp :noweb-ref gc-config
+  (setq gc-cons-threshold most-positive-fixnum ; 2^61 bytes
+        gc-cons-percentage 0.6)
+
+  (add-hook 'emacs-startup-hook
+            (lambda ()
+              (setq gc-cons-threshold 33554432 ; 32mb
+                    gc-cons-percentage 0.1)))
+#+end_src
+
+* Defaults
+
+This is stolen from corgi-defaults
+
+#+begin_src emacs-lisp
+  ;; Change a bunch of Emacs defaults, from disabling the menubar and toolbar,
+  ;; to fixing modifier keys on Mac and disabling the system bell.
+  ;; (use-package corgi-defaults)
+#+end_src
+
+* Editor
+
+This is stolen from corgi-editor
+
+#+begin_src emacs-lisp 
+  ;; UI configuration for that Corgi-feel. This sets up a bunch of packages like
+  ;; Evil, Smartparens, Aggressive indent, Rainbow parens, expand region etc.
+  ;; (use-package corgi-editor)
+#+end_src
+
+* Completion UI
+
+This is one of the places where I've strayed quite a bit from
+corgi-completion-ui. 
+
+#+begin_src emacs-lisp
+  ;; Interactive Completion user interface configuration. This sets up
+  ;; a bunch of packages like Ivy (minibuffer completion), Swiper
+  ;; (fuzzy search), Counsel, Projectile (project-aware commands),
+  ;; Company (completion).
+  ;; (use-package corgi-completion-ui)
+#+end_src
+
+* Commands
+
+This is stolen from corgi-commands
+
+#+begin_src emacs-lisp
+  ;; The few custom commands that we ship with. This includes a few things we
+  ;; emulate from Spacemacs, and commands for jumping to the user's init.el
+  ;; (this file, with `SPC f e i'), or opening the user's key binding or signals
+  ;; file.
+  ;; (use-package corgi-commands)
+#+end_src
+
+
+* Clojure
+
+This is stolen from corgi-clojure
+
+#+begin_src emacs-lisp
+  ;; Extensive setup for a good Clojure experience, including clojure-mode,
+  ;; CIDER, and a modeline indicator that shows which REPLs your evaluations go
+  ;; to.
+  ;; Also contains `corgi/cider-pprint-eval-register', bound to `,,', see
+  ;; `set-register' calls below.
+  ;; (use-package corgi-clojure)
+#+end_src
+
+
+* Emacs Lisp
+
+This is stolen from corgi-emacs-lisp
+
+#+begin_src emacs-lisp
+  ;; Emacs Lisp config, mainly to have a development experience that feels
+  ;; similar to using CIDER and Clojure. (show results in overlay, threading
+  ;; refactorings)
+  ;;  (use-package corgi-emacs-lisp)
+#+end_src
+
+
+* corgi-stateline
+
+I suppose I'm just using corgi-stateline
+
+#+begin_src emacs-lisp
+  ;; Change the color of the modeline based on the Evil state (e.g. green when
+  ;; in insert state)
+  (use-package corgi-stateline
+    :config
+    (global-corgi-stateline-mode))
+#+end_src
+
+* corgi-bindings
+
+#+begin_src emacs-lisp
+  ;; Package which provides corgi-keys and corgi-signals, the two files that
+  ;; define all Corgi bindings, and the default files that Corkey will look for.
+  ;; (use-package corgi-bindings)
+#+end_src
+
+* corkey
+
+#+begin_src emacs-lisp
+  ;; Corgi's keybinding system, which builds on top of Evil. See the manual, or
+  ;; visit the key binding and signal files (with `SPC f e k', `SPC f e K', `SPC
+  ;; f e s' `SPC f e S')
+  ;; Put this last here, otherwise keybindings for commands that aren't loaded
+  ;; yet won't be active.
+  ;; (use-package corkey
+  ;;   :config
+  ;;   (corkey-mode 1)
+  ;;   ;; Automatically pick up keybinding changes
+  ;;   (corkey/load-and-watch))
+#+end_src
+
+* evil-escape
+
+#+begin_src emacs-lisp
+  ;; Customizable key sequence to escape from insert state. Defaults to `fd'
+  ;; (use-package evil-escape
+  ;;   :straight (evil-escape :type git :host github :repo "syl20bnr/evil-escape"
+  ;;                          :fork (:host github :repo "emacsorphanage/evil-escape"))
+  ;;   :diminish evil-escape-mode
+  ;;   :config
+  ;;   (evil-escape-mode))
+#+end_src
+
+* Javascript
+
+#+begin_src emacs-lisp
+  ;; REPL-driven development for JavaScript, included as an example of how to
+  ;; configure signals, see `user-signal.el' (visit it with `SPC f e s')
+  ;; (use-package js-comint)
+#+end_src
+
+* Magit and VC modes
+
+** Magit
+
+#+NAME: magit
+#+begin_src emacs-lisp
+  ;; Powerful Git integration. Corgi already ships with a single keybinding for
+  ;; Magit, which will be enabled if it's installed (`SPC g s' or `magit-status').
+  (use-package magit
+    :init
+    (when ubuntu-p
+      (package-install 'magit)))
+
+#+end_src
+
 
 * Coda
 
