@@ -32,6 +32,16 @@ going to be borrowing a lot from [[https://protesilaos.com/][Prot]]'s [[https://
 Thanks to [[https://mathstodon.xyz/@anemofilia/113803804376833799][anemofilia]] I've learned more about [[https://orgmode.org/manual/Noweb-Reference-Syntax.html][noweb syntax]] and how [[https://social.boiledscript.com/@hako][hako]]
 configures [[https://codeberg.org/hako/Testament/src/branch/trunk/cfg/dorphine.org][dorphine]] and [[https://codeberg.org/hako/Testament/src/branch/trunk/cfg/gokuraku.org][gokuraku]] for Guix.
 
+* Things I'd like to be able to do
+
+That I haven't figured out yet.
+
+ - Have a link to the org section and the org-text as comments on the
+   noweb file. I know how to do it if I just tangle this file, but I'd
+   like to have one file with multiple outputs.
+ - Have a Table of Contents Show up when I push to github. Do I need
+   to export the file instead? Who knows?
+
 * Files to Create
 
 ** early-init.el
