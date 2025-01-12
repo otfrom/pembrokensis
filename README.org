@@ -1233,7 +1233,7 @@ I suppose I'm just using corgi-stateline
 
 * corkey
 
-#+begin_src emacs-lisp
+#+begin_src emacs-lisp :noweb-ref pembrokensis-corkey
   ;; Corgi's keybinding system, which builds on top of Evil. See the manual, or
   ;; visit the key binding and signal files (with `SPC f e k', `SPC f e K', `SPC
   ;; f e s' `SPC f e S')
