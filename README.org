@@ -81,11 +81,23 @@ This is the bulk of the emacs configuration.
   ;; This has been produced from README.org
 
   ;;; Code:
+
+  ;;; Helpers
   <<init-helpers>>
 
+  ;;; Defaults
   <<pembrokensis-defaults>>
+
+  ;;; Editor
+  <<pembrokensis-editor>>
+
+  ;;; Completion UI
+  <<pembrokensis-completion-ui>>
+
+  ;;; Other Modes
   <<magit>>
 
+  ;;; Coda
   <<init-coda>>
 
   (provide 'init)
@@ -106,11 +118,23 @@ copy over. I'd like to produce that from here.
   ;; This has been produced from README.org
 
   ;;; Code:
+
+  ;;; Helpers
   <<init-helpers>>
 
+  ;;; Defaults
   <<pembrokensis-defaults>>
+
+  ;;; Editor
+  <<pembrokensis-editor>>
+
+  ;;; Completion UI
+  <<pembrokensis-completion-ui>>
+
+  ;;; Other Modes
   <<magit>>
 
+  ;;; Coda
   <<init-coda>>
 
   (provide 'init)
@@ -224,7 +248,7 @@ Guix or NixOS.
 
     #+BEGIN_SRC emacs-lisp :noweb-ref early-init-packages
       (if ubuntu-p
-          (progn 
+          (progn
             (setopt package-enable-at-startup t)
             (package-initialize))
         (setopt package-enable-at-startup nil))
@@ -309,7 +333,7 @@ This is stolen from [[https://github.com/corgi-emacs/corgi-packages/blob/main/co
     ;; Nic says eval-expression-print-level needs to be set to nil (turned off) so
     ;; that you can always see what's happening.
     (setq eval-expression-print-level nil)
-    
+
     :config
     (if (fboundp 'menu-bar-mode) (menu-bar-mode -1))
     (if (fboundp 'tool-bar-mode) (tool-bar-mode -1))
@@ -400,18 +424,294 @@ This is stolen from [[https://github.com/corgi-emacs/corgi-packages/blob/main/co
 
 * Editor
 
-This is stolen from corgi-editor
+This is stolen from [[https://github.com/corgi-emacs/corgi-packages/blob/main/corgi-editor/corgi-editor.el][corgi-editor]]
 
-#+begin_src emacs-lisp 
+#+begin_src emacs-lisp :noweb-ref pembrokensis-editor
   ;; UI configuration for that Corgi-feel. This sets up a bunch of packages like
   ;; Evil, Smartparens, Aggressive indent, Rainbow parens, expand region etc.
   ;; (use-package corgi-editor)
 #+end_src
 
+** avy for jumping around
+
+#+begin_src emacs-lisp :noweb-ref pembrokensis-editor
+  (use-package avy)
+#+end_src
+
+** undo-fu, as evil needs it
+
+I'm not sure about [[https://codeberg.org/ideasman42/emacs-undo-fu][undo-fu]]. According to the [[https://github.com/emacs-evil/evil?tab=readme-ov-file#dependencies][dependencies]] of evil we
+either need this or [[https://gitlab.com/tsc25/undo-tree][undo-tree]].
+
+#+begin_src emacs-lisp :noweb-ref pembrokensis-editor
+  (use-package undo-fu)
+#+end_src
+
+** evil
+
+#+begin_quote
+[[https://github.com/emacs-evil/evil][Evil]] is an extensible vi layer for Emacs. It emulates the main
+features of [[https://github.com/emacs-evil/evil][Vim]], and provides facilities for writing custom
+extensions. Also see our page on [[https://www.emacswiki.org/emacs/Evil][EmacsWiki]].
+#+end_quote
+
+
+#+begin_src emacs-lisp :noweb-ref pembrokensis-editor
+  (use-package evil
+    :init (setq evil-want-keybinding nil)
+    :config
+    (evil-mode t)
+    (evil-set-undo-system 'undo-fu)
+    (setq evil-move-cursor-back nil
+          evil-move-beyond-eol t
+          evil-want-fine-undo t
+          evil-mode-line-format 'before
+          evil-normal-state-cursor '(box "orange")
+          evil-insert-state-cursor '(box "green")
+          evil-visual-state-cursor '(box "#F86155")
+          evil-emacs-state-cursor  '(box "purple"))
+
+    ;; Prevent evil-motion-state from shadowing previous/next sexp
+    (require 'evil-maps)
+    (define-key evil-motion-state-map "L" nil)
+    (define-key evil-motion-state-map "M" nil))
+#+end_src
+
+** evil-collection
+
+Evil really corrupts everything (I joke, or do I?) and that means we
+need to start adding in other bindings as well.
+
+#+begin_quote
+This is a collection of Evil bindings for the parts of Emacs that Evil
+does not cover properly by default, such as help-mode, M-x calendar,
+Eshell and more.
+
+Warning: Expect some default bindings to change in the future.
+#+end_quote
+
+#+begin_src emacs-lisp :noweb-ref pembrokensis-editor
+  (use-package evil-collection
+    :after (evil)
+    :diminish evil-collection-unimpaired-mode
+    :config
+    (evil-collection-init))
+#+end_src
+
+** evil-surround
+
+#+begin_quote
+[[https://github.com/emacs-evil/evil-surround][This]] package emulates surround.vim by Tim Pope. The functionality is
+wrapped into a minor mode.
+
+This package uses Evil as its vi layer.
+#+end_quote
+
+#+begin_src emacs-lisp :noweb-ref pembrokensis-editor
+  (use-package evil-surround
+    :config (global-evil-surround-mode 1))
+#+end_src
+
+
+** which-key
+
+#+begin_src emacs-lisp :noweb-ref pembrokensis-editor
+  (use-package which-key
+    :diminish which-key-mode
+    :config
+    (which-key-mode 1)
+    (setq which-key-sort-order 'which-key-prefix-then-key-order))
+#+end_src
+
+** ace-jump instead of winum
+
+Corgi uses [[https://github.com/corgi-emacs/corgi-packages/blob/36254ff552d0ee0f5c50d6a29ecfd75b0cf503a1/corgi-editor/corgi-editor.el#L56][winum]] to go to different windows, I'd like to use
+[[https://github.com/abo-abo/ace-window][ace-window]] instead as we already have avy for other jumping.
+
+#+begin_quote
+I'm sure you're aware of the other-window command. While it's great
+for two windows, it quickly loses its value when there are more
+windows. You need to call it many times, and since it's not easily
+predictable, you have to check each time if you're in the window that
+you wanted.
+
+Another approach is to use windmove-left, windmove-up, etc. These are
+fast and predictable. Their disadvantage is that they need 4 key
+bindings. The default ones are shift+arrows, which are hard to reach.
+
+This package aims to take the speed and predictability of windmove and
+pack it into a single key binding, similar to other-window.
+#+end_quote
+
+#+begin_src emacs-lisp :noweb-ref pembrokensis-editor
+  (use-package ace-window)
+#+end_src
+
+** smartparens rather than paredit
+
+I've been a [[https://paredit.org/][paredit]] person for a very long time, but most evil people
+like things like [[https://github.com/emacs-evil/evil-cleverparens][cleverparens]] and [[https://github.com/Fuco1/smartparens][smartparens]] instead, that are
+supposed to "fix" the problems of paredit, which in fairness did sit
+still for a very long time, as it all basically worked, but emacs
+moved on in the meantime after a long period of being quiet until the
+new maintainers took over.
+
+I wonder if all of this might be replaced by something [[https://www.masteringemacs.org/article/how-to-get-started-tree-sitter][Tree-Sitter]]
+based eventually.
+
+*** smartparens
+
+[[https://github.com/Fuco1/smartparens][smartparens]] tries to be a superset of all the other electric pair
+modes.
+
+#+begin_src emacs-lisp :noweb-ref pembrokensis-editor
+  (use-package smartparens
+    :init (require 'smartparens-config)
+    :diminish smartparens-mode
+    :hook (prog-mode . smartparens-mode))
+#+end_src
+
+*** cleverparens
+
+#+begin_quote
+evil-cleverparens is modal-editing optimized for editing Lisp. It
+works under the following principles:
+
+ - Act like Vim/evil where useful, but prevent actions that would
+   throw the order of your parentheses and other delimiters into
+   question.
+
+ - Make the most out of the combination of structural and modal
+   editing.
+
+ - Provide but don't force additional features on the user.
+#+end_quote
+
+#+begin_src emacs-lisp :noweb-ref pembrokensis-editor
+  ;; We don't actually enable cleverparens, because most of their bindings we
+  ;; don't want, we install our own bindings for specific sexp movements
+  (use-package evil-cleverparens
+    :after (evil smartparens))
+#+end_src
+
+
+** aggressive-indent
+
+[[https://github.com/Malabarba/aggressive-indent-mode][Malabarba/aggressive-indent-mode]] Emacs minor mode that keeps your code
+always indented. More reliable than electric-indent-mode.
+
+#+begin_src emacs-lisp :noweb-ref pembrokensis-editor
+  (use-package aggressive-indent
+    :diminish aggressive-indent-mode
+    :hook ((clojurex-mode
+            clojurescript-mode
+            clojurec-mode
+            clojure-mode
+            emacs-lisp-mode
+            lisp-data-mode
+            js-mode
+            piglet-mode)
+           . aggressive-indent-mode))
+#+end_src
+
+** rainbow-delimiters
+
+Because I like the colourful visual signal of what blocks go together.
+
+#+begin_src emacs-lisp :noweb-ref pembrokensis-editor
+  (use-package rainbow-delimiters
+    :hook ((cider-repl-mode
+            clojurex-mode
+            clojurescript-mode
+            clojurec-mode
+            clojure-mode
+            emacs-lisp-mode
+            lisp-data-mode
+            inferior-emacs-lisp-mode)
+           . rainbow-delimiters-mode))
+#+end_src
+
+** dumb-jump
+
+[[https://github.com/jacktasia/dumb-jump#start-of-content][dumb-jump]] tries to fill in those places where things like CIDER or lsp
+modes won't find things for you. I'm not sure about it, but let's try
+it for a while.
+
+#+begin_quote
+Dumb Jump is an Emacs "jump to definition" package with support for
+50+ programming languages that favors "just working". This means
+minimal -- and ideally zero -- configuration with absolutely no stored
+indexes (TAGS) or persistent background processes. Dumb Jump requires
+at least GNU Emacs 24.3.
+#+end_quote
+
+#+begin_src emacs-lisp :noweb-ref pembrokensis-editor
+  (use-package dumb-jump)
+#+end_src
+
+** goto-last-change
+
+#+begin_src emacs-lisp :noweb-ref pembrokensis-editor
+  (use-package goto-last-change)
+#+end_src
+
+** expand-region
+
+#+begin_src emacs-lisp :noweb-ref pembrokensis-editor
+  (use-package expand-region)
+#+end_src
+
+** string-edit-at-point
+
+#+begin_src emacs-lisp :noweb-ref pembrokensis-editor
+  (use-package string-edit-at-point)
+#+end_src
+
+** xclip
+
+#+begin_src emacs-lisp :noweb-ref pembrokensis-editor
+  (when (and (not (display-graphic-p))
+             (executable-find "xclip"))
+    (use-package xclip
+      :config
+      (when (executable-find xclip-program)
+        (with-no-warnings
+          (xclip-mode t)))))
+#+end_src
+
+** Some helper functions
+
+#+begin_src emacs-lisp :noweb-ref pembrokensis-editor
+  ;; Offer to create parent directories if they do not exist
+  ;; http://iqbalansari.github.io/blog/2014/12/07/automatically-create-parent-directories-on-visiting-a-new-file-in-emacs/
+  (defun magnars/create-non-existent-directory ()
+    (let ((parent-directory (file-name-directory buffer-file-name)))
+      (when (and (not (file-exists-p parent-directory))
+                 (y-or-n-p (format "Directory `%s' does not exist! Create it?" parent-directory)))
+        (make-directory parent-directory t))))
+
+  (add-to-list 'find-file-not-found-functions #'magnars/create-non-existent-directory)
+
+  (defvar corgi-editor--last-buffer
+    nil
+    "The last current buffer.")
+
+  (defun corgi-editor/-on-buffer-change (&optional _win)
+    (unless (or (and (minibufferp) (not evil-want-minibuffer))
+                (eq (current-buffer) corgi-editor--last-buffer))
+      (setq corgi-editor--last-buffer (current-buffer))
+      (evil-change-to-initial-state)))
+
+  (if (boundp 'window-buffer-change-functions)
+      ;; Emacs 27.1+ only
+      (add-hook 'window-buffer-change-functions #'corgi-editor/-on-buffer-change)
+    (add-hook 'post-command-hook #'corgi-editor/-on-buffer-change))
+#+end_src
+
 * Completion UI
 
 This is one of the places where I've strayed quite a bit from
-corgi-completion-ui. 
+corgi-completion-ui.
 
 #+begin_src emacs-lisp
   ;; Interactive Completion user interface configuration. This sets up
@@ -419,6 +719,391 @@ corgi-completion-ui.
   ;; (fuzzy search), Counsel, Projectile (project-aware commands),
   ;; Company (completion).
   ;; (use-package corgi-completion-ui)
+#+end_src
+
+** vertico-mode and orderless
+:PROPERTIES:
+:ID:       4bc8b4ed-bac4-4d71-a85e-c0e638c80766
+:END:
+
+#+begin_quote
+Vertico provides a performant and minimalistic vertical completion UI
+based on the default completion system. The focus of Vertico is to
+provide a UI which behaves correctly under all circumstances. By
+reusing the built-in facilities system, Vertico achieves full
+compatibility with built-in Emacs completion commands and completion
+tables.
+#+end_quote
+
+[[https://github.com/minad/vertico][vertico-mode]] is a replacement for things like [[https://company-mode.github.io/][company-mode]] for
+completion in lots of different places. company-mode did lots of extra
+things that aren’t needed as much in newer versions of emacs so is a
+lot of extra code. vertico is hopefully smaller and easier to maintain
+as it uses more of the features built into emacs 28 and beyond.
+
+There are a lot of configuration suggestions on the github page in
+that initial link. We’ll be stealing most of them and I’ll try to
+highlight the places where we don’t use those suggestions.
+
+Let’s get the vertico basics up and running. I’ll have a think about
+what lines in this I want to uncomment later
+
+#+begin_src emacs-lisp :noweb-ref pembrokensis-completion-ui
+;; Enable vertico
+(use-package vertico
+  ;; :custom
+  ;; (vertico-scroll-margin 0) ;; Different scroll margin
+  ;; (vertico-count 20) ;; Show more candidates
+  ;; (vertico-resize t) ;; Grow and shrink the Vertico minibuffer
+  ;; (vertico-cycle t) ;; Enable cycling for `vertico-next/previous'
+  :init
+  (vertico-mode))
+#+end_src
+
+*** savehist-mode
+:PROPERTIES:
+:ID:       553a9a81-f14b-40fb-aa44-46e80260d561
+:END:
+
+It looks like it wants to use ~savehist-mode~ as well for things.
+
+ #+begin_src emacs-lisp :noweb-ref pembrokensis-completion-ui
+;; Persist history over Emacs restarts. Vertico sorts by history position.
+(use-package savehist
+  :init
+  (savehist-mode))
+#+end_src
+
+And it wants us to configure some of the base things in Emacs itself
+
+
+*** vertico specific Emacs configurations
+:PROPERTIES:
+:ID:       41687694-5375-492a-b70b-e8af5f5eaea1
+:END:
+
+#+begin_src emacs-lisp :noweb-ref pembrokensis-completion-ui
+;; A few more useful configurations...
+(use-package emacs
+  :custom
+  ;; Support opening new minibuffers from inside existing minibuffers.
+  (enable-recursive-minibuffers t)
+  ;; Hide commands in M-x which do not work in the current mode.  Vertico
+  ;; commands are hidden in normal buffers. This setting is useful beyond
+  ;; Vertico.
+  (read-extended-command-predicate #'command-completion-default-include-p)
+  :init
+  ;; Add prompt indicator to `completing-read-multiple'.
+  ;; We display [CRM<separator>], e.g., [CRM,] if the separator is a comma.
+  (defun crm-indicator (args)
+    (cons (format "[CRM%s] %s"
+                  (replace-regexp-in-string
+                    "\\`\\[.*?]\\*\\|\\[.*?]\\*\\'" ""
+                   crm-separator)
+                  (car args))
+          (cdr args)))
+  (advice-add #'completing-read-multiple :filter-args #'crm-indicator)
+
+  ;; Do not allow the cursor in the minibuffer prompt
+  (setq minibuffer-prompt-properties
+        '(read-only t cursor-intangible t face minibuffer-prompt))
+  (add-hook 'minibuffer-setup-hook #'cursor-intangible-mode))
+#+end_src
+
+*** orderless
+:PROPERTIES:
+:ID:       8a25a266-b5cf-4075-b17d-f08700c3ae9b
+:END:
+
+And it wants us to put in [[https://github.com/oantolin/orderless][orderless]] too
+
+#+begin_src emacs-lisp :noweb-ref pembrokensis-completion-ui
+;; Optionally use the `orderless' completion style.
+(use-package orderless
+  :custom
+  ;; Configure a custom style dispatcher (see the Consult wiki)
+  ;; (orderless-style-dispatchers '(+orderless-consult-dispatch orderless-affix-dispatch))
+  ;; (orderless-component-separator #'orderless-escapable-split-on-space)
+  (completion-styles '(orderless basic))
+  (completion-category-defaults nil)
+  (completion-category-overrides '((file (styles partial-completion)))))
+#+end_src
+
+There are a number of other [[https://github.com/minad/vertico?tab=readme-ov-file#complementary-packages][complementary packages]] that we are going
+to use as well like [[id:cee7b9ba-aec3-4464-9f47-cdd09f6c8ffc][Marginalia]], Consult, and Embark. We’ve already put
+in orderless.
+
+** Marginalia and nerd icons
+:PROPERTIES:
+:ID:       cee7b9ba-aec3-4464-9f47-cdd09f6c8ffc
+:END:
+
+ gives us a lot more information about out minibuffer completions.
+
+#+begin_src emacs-lisp :noweb-ref pembrokensis-completion-ui
+;; Enable rich annotations using the Marginalia package
+(use-package marginalia
+  ;; Bind `marginalia-cycle' locally in the minibuffer.  To make the binding
+  ;; available in the *Completions* buffer, add it to the
+  ;; `completion-list-mode-map'.
+  :bind (:map minibuffer-local-map
+         ("M-A" . marginalia-cycle))
+
+  ;; The :init section is always executed.
+  :init
+
+  ;; Marginalia must be activated in the :init section of use-package such that
+  ;; the mode gets enabled right away. Note that this forces loading the
+  ;; package.
+  (marginalia-mode))
+#+end_src
+
+There is a suggestion to use nerd-icons as well
+
+#+begin_src emacs-lisp :noweb-ref pembrokensis-completion-ui
+  ;; FIXME: This isn’t really giving us the results we want on nixos
+  ;; (use-package nerd-icons-completion
+  ;;   :after marginalia
+  ;;   :config
+  ;;   (nerd-icons-completion-mode)
+  ;;   (add-hook 'marginalia-mode-hook #'nerd-icons-completion-marginalia-setup))
+#+end_src
+
+FIXME: The nerd-icons don’t really seem to be working that well for me
+at the moment though. I’m not sure what bit of nixos I have failed to
+configure correctly.
+
+** Consult
+
+#+begin_quote
+Consult provides search and navigation commands based on the Emacs
+completion function completing-read. Completion allows you to quickly
+select an item from a list of candidates. Consult offers asynchronous
+and interactive consult-grep and consult-ripgrep commands, and the
+line-based search command consult-line. Furthermore Consult provides
+an advanced buffer switching command consult-buffer to switch between
+buffers, recently opened files, bookmarks and buffer-like candidates
+from other sources.
+#+end_quote
+
+[[https://github.com/minad/consult][consult]]
+
+#+begin_src emacs-lisp :noweb-ref pembrokensis-completion-ui
+;; Example configuration for Consult
+(use-package consult
+  ;; Replace bindings. Lazily loaded by `use-package'.
+  :bind (;; C-c bindings in `mode-specific-map'
+         ("C-c M-x" . consult-mode-command)
+         ("C-c h" . consult-history)
+         ("C-c k" . consult-kmacro)
+         ("C-c m" . consult-man)
+         ("C-c i" . consult-info)
+         ([remap Info-search] . consult-info)
+         ;; C-x bindings in `ctl-x-map'
+         ("C-x M-:" . consult-complex-command)     ;; orig. repeat-complex-command
+         ("C-x b" . consult-buffer)                ;; orig. switch-to-buffer
+         ("C-x 4 b" . consult-buffer-other-window) ;; orig. switch-to-buffer-other-window
+         ("C-x 5 b" . consult-buffer-other-frame)  ;; orig. switch-to-buffer-other-frame
+         ("C-x t b" . consult-buffer-other-tab)    ;; orig. switch-to-buffer-other-tab
+         ("C-x r b" . consult-bookmark)            ;; orig. bookmark-jump
+         ("C-x p b" . consult-project-buffer)      ;; orig. project-switch-to-buffer
+         ;; Custom M-# bindings for fast register access
+         ("M-#" . consult-register-load)
+         ("M-'" . consult-register-store)          ;; orig. abbrev-prefix-mark (unrelated)
+         ("C-M-#" . consult-register)
+         ;; Other custom bindings
+         ("M-y" . consult-yank-pop)                ;; orig. yank-pop
+         ;; M-g bindings in `goto-map'
+         ("M-g e" . consult-compile-error)
+         ("M-g f" . consult-flymake)               ;; Alternative: consult-flycheck
+         ("M-g g" . consult-goto-line)             ;; orig. goto-line
+         ("M-g M-g" . consult-goto-line)           ;; orig. goto-line
+         ("M-g o" . consult-outline)               ;; Alternative: consult-org-heading
+         ("M-g m" . consult-mark)
+         ("M-g k" . consult-global-mark)
+         ("M-g i" . consult-imenu)
+         ("M-g I" . consult-imenu-multi)
+         ;; M-s bindings in `search-map'
+         ("M-s d" . consult-find)                  ;; Alternative: consult-fd
+         ("M-s c" . consult-locate)
+         ("M-s g" . consult-grep)
+         ("M-s G" . consult-git-grep)
+         ("M-s r" . consult-ripgrep)
+         ("M-s l" . consult-line)
+         ("M-s L" . consult-line-multi)
+         ("M-s k" . consult-keep-lines)
+         ("M-s u" . consult-focus-lines)
+         ;; Isearch integration
+         ("M-s e" . consult-isearch-history)
+         :map isearch-mode-map
+         ("M-e" . consult-isearch-history)         ;; orig. isearch-edit-string
+         ("M-s e" . consult-isearch-history)       ;; orig. isearch-edit-string
+         ("M-s l" . consult-line)                  ;; needed by consult-line to detect isearch
+         ("M-s L" . consult-line-multi)            ;; needed by consult-line to detect isearch
+         ;; Minibuffer history
+         :map minibuffer-local-map
+         ("M-s" . consult-history)                 ;; orig. next-matching-history-element
+         ("M-r" . consult-history))                ;; orig. previous-matching-history-element
+
+  ;; Enable automatic preview at point in the *Completions* buffer. This is
+  ;; relevant when you use the default completion UI.
+  :hook (completion-list-mode . consult-preview-at-point-mode)
+
+  ;; The :init configuration is always executed (Not lazy)
+  :init
+
+  ;; Tweak the register preview for `consult-register-load',
+  ;; `consult-register-store' and the built-in commands.  This improves the
+  ;; register formatting, adds thin separator lines, register sorting and hides
+  ;; the window mode line.
+  (advice-add #'register-preview :override #'consult-register-window)
+  (setq register-preview-delay 0.5)
+
+  ;; Use Consult to select xref locations with preview
+  (setq xref-show-xrefs-function #'consult-xref
+        xref-show-definitions-function #'consult-xref)
+
+  ;; Configure other variables and modes in the :config section,
+  ;; after lazily loading the package.
+  :config
+
+  ;; Optionally configure preview. The default value
+  ;; is 'any, such that any key triggers the preview.
+  ;; (setq consult-preview-key 'any)
+  ;; (setq consult-preview-key "M-.")
+  ;; (setq consult-preview-key '("S-<down>" "S-<up>"))
+  ;; For some commands and buffer sources it is useful to configure the
+  ;; :preview-key on a per-command basis using the `consult-customize' macro.
+  (consult-customize
+   consult-theme :preview-key '(:debounce 0.2 any)
+   consult-ripgrep consult-git-grep consult-grep
+   consult-bookmark consult-recent-file consult-xref
+   consult--source-bookmark consult--source-file-register
+   consult--source-recent-file consult--source-project-recent-file
+   ;; :preview-key "M-."
+   :preview-key '(:debounce 0.4 any))
+
+  ;; Optionally configure the narrowing key.
+  ;; Both < and C-+ work reasonably well.
+  (setq consult-narrow-key "<") ;; "C-+"
+
+  ;; Optionally make narrowing help available in the minibuffer.
+  ;; You may want to use `embark-prefix-help-command' or which-key instead.
+  ;; (keymap-set consult-narrow-map (concat consult-narrow-key " ?") #'consult-narrow-help)
+)
+#+end_src
+
+**** Use consult-ripgrep instead of project-find-regexp in project.el
+
+[[https://github.com/minad/consult/wiki#use-consult-ripgrep-instead-of-project-find-regexp-in-projectel][Config from the wiki]]
+
+#+begin_src emacs-lisp :noweb-ref pembrokensis-completion-ui
+  (require 'keymap) ;; keymap-substitute requires emacs version 29.1?
+  (require 'cl-seq)
+  (require 'project)
+
+  (keymap-substitute project-prefix-map #'project-find-regexp #'consult-ripgrep)
+  (cl-nsubstitute-if
+    '(consult-ripgrep "Find regexp")
+    (pcase-lambda (`(,cmd _)) (eq cmd #'project-find-regexp))
+    project-switch-commands)
+#+end_src
+
+** Embark
+
+#+begin_src emacs-lisp :noweb-ref pembrokensis-completion-ui
+(use-package embark
+  :bind
+  (("C-." . embark-act)         ;; pick some comfortable binding
+   ("C-;" . embark-dwim)        ;; good alternative: M-.
+   ("C-h B" . embark-bindings)) ;; alternative for `describe-bindings'
+
+  :init
+
+  ;; Optionally replace the key help with a completing-read interface
+  (setq prefix-help-command #'embark-prefix-help-command)
+
+  ;; Show the Embark target at point via Eldoc. You may adjust the
+  ;; Eldoc strategy, if you want to see the documentation from
+  ;; multiple providers. Beware that using this can be a little
+  ;; jarring since the message shown in the minibuffer can be more
+  ;; than one line, causing the modeline to move up and down:
+
+  ;; (add-hook 'eldoc-documentation-functions #'embark-eldoc-first-target)
+  ;; (setq eldoc-documentation-strategy #'eldoc-documentation-compose-eagerly)
+
+  :config
+
+  ;; Hide the mode line of the Embark live/completions buffers
+  (add-to-list 'display-buffer-alist
+               '("\\`\\*Embark Collect \\(Live\\|Completions\\)\\*"
+                 nil
+                 (window-parameters (mode-line-format . none)))))
+
+;; Consult users will also want the embark-consult package.
+(use-package embark-consult
+  :ensure t ; only need to install it, embark loads it after consult if found
+  :hook
+  (embark-collect-mode . consult-preview-at-point-mode))
+#+end_src
+
+*** consult embark integration
+
+[[https://github.com/minad/consult?tab=readme-ov-file#embark-integration][consult embark integration]]
+
+** Corfu
+
+#+begin_quote
+Corfu enhances in-buffer completion with a small completion popup. The
+current candidates are shown in a popup below or above the point, and
+can be selected by moving up and down. Corfu is the minimalistic
+in-buffer completion counterpart of the Vertico minibuffer UI.
+#+end_quote
+
+[[https://github.com/minad/corfu][Corfu]]
+
+I’m probably going to want to activate ~corfu-cycle~.
+
+#+begin_src emacs-lisp :noweb-ref pembrokensis-completion-ui
+(use-package corfu
+  ;; Optional customizations
+  ;; :custom
+  ;; (corfu-cycle t)                ;; Enable cycling for `corfu-next/previous'
+  ;; (corfu-quit-at-boundary nil)   ;; Never quit at completion boundary
+  ;; (corfu-quit-no-match nil)      ;; Never quit, even if there is no match
+  ;; (corfu-preview-current nil)    ;; Disable current candidate preview
+  ;; (corfu-preselect 'prompt)      ;; Preselect the prompt
+  ;; (corfu-on-exact-match nil)     ;; Configure handling of exact matches
+
+  ;; Enable Corfu only for certain modes. See also `global-corfu-modes'.
+  ;; :hook ((prog-mode . corfu-mode)
+  ;;        (shell-mode . corfu-mode)
+  ;;        (eshell-mode . corfu-mode))
+
+  ;; Recommended: Enable Corfu globally.  This is recommended since Dabbrev can
+  ;; be used globally (M-/).  See also the customization variable
+  ;; `global-corfu-modes' to exclude certain modes.
+  :init
+  (global-corfu-mode))
+
+;; A few more useful configurations...
+(use-package emacs
+  :custom
+  ;; TAB cycle if there are only few candidates
+  ;; (completion-cycle-threshold 3)
+
+  ;; Enable indentation+completion using the TAB key.
+  ;; `completion-at-point' is often bound to M-TAB.
+  (tab-always-indent 'complete)
+
+  ;; Emacs 30 and newer: Disable Ispell completion function.
+  ;; Try `cape-dict' as an alternative.
+  (text-mode-ispell-word-completion nil)
+
+  ;; Hide commands in M-x which do not apply to the current mode.  Corfu
+  ;; commands are hidden, since they are not used via M-x. This setting is
+  ;; useful beyond Corfu.
+  (read-extended-command-predicate #'command-completion-default-include-p))
 #+end_src
 
 * Commands
