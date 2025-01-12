@@ -94,6 +94,27 @@ This is the bulk of the emacs configuration.
   ;;; Completion UI
   <<pembrokensis-completion-ui>>
 
+  ;;; pembrokensis-commands
+  <<pembrokensis-commands>>
+
+  ;;; pembrokensis-clojure
+  <<pembrokensis-clojure>>
+
+  ;;; pembrokensis-emacs-lisp
+  <<pembrokensis-emacs-lisp>>
+
+  ;;; pembrokensis-stateline
+  <<pembrokensis-stateline>>
+
+  ;;; pembrokensis-corgi-bindings
+  <<pembrokensis-corgi-bindings>>
+
+  ;;; pembrokensis-corkey
+  <<pembrokensis-corkey>>
+
+  ;;; evil-escape
+  <<evil-escape>>
+
   ;;; Other Modes
   <<magit>>
 
@@ -130,6 +151,27 @@ copy over. I'd like to produce that from here.
 
   ;;; Completion UI
   <<pembrokensis-completion-ui>>
+
+  ;;; pembrokensis-commands
+  <<pembrokensis-commands>>
+
+  ;;; pembrokensis-clojure
+  <<pembrokensis-clojure>>
+
+  ;;; pembrokensis-emacs-lisp
+  <<pembrokensis-emacs-lisp>>
+
+  ;;; pembrokensis-stateline
+  <<pembrokensis-stateline>>
+
+  ;;; pembrokensis-corgi-bindings
+  <<pembrokensis-corgi-bindings>>
+
+  ;;; pembrokensis-corkey
+  <<pembrokensis-corkey>>
+
+  ;;; evil-escape
+  <<evil-escape>>
 
   ;;; Other Modes
   <<magit>>
@@ -652,7 +694,7 @@ at least GNU Emacs 24.3.
 ** goto-last-change
 
 #+begin_src emacs-lisp :noweb-ref pembrokensis-editor
-  (use-package goto-last-change)
+  (use-package goto-chg)
 #+end_src
 
 ** expand-region
@@ -664,7 +706,8 @@ at least GNU Emacs 24.3.
 ** string-edit-at-point
 
 #+begin_src emacs-lisp :noweb-ref pembrokensis-editor
-  (use-package string-edit-at-point)
+  ;; (use-package string-edit-at-point)
+
 #+end_src
 
 ** xclip
@@ -1118,6 +1161,10 @@ This is stolen from corgi-commands
   ;; (use-package corgi-commands)
 #+end_src
 
+#+begin_src emacs-lisp :noweb-ref pembrokensis-commands
+  (use-package corgi-commands
+    :load-path "corgi-packages/corgi-commands/")
+#+end_src
 
 * Clojure
 
@@ -1132,6 +1179,10 @@ This is stolen from corgi-clojure
   ;; (use-package corgi-clojure)
 #+end_src
 
+#+begin_src emacs-lisp :noweb-ref pembrokensis-clojure
+    (use-package corgi-clojure
+      :load-path "corgi-packages/corgi-clojure/")
+#+end_src
 
 * Emacs Lisp
 
@@ -1144,6 +1195,10 @@ This is stolen from corgi-emacs-lisp
   ;;  (use-package corgi-emacs-lisp)
 #+end_src
 
+#+begin_src emacs-lisp :noweb-ref pembrokensis-emacs-lisp
+    (use-package corgi-emacs-lisp
+      :load-path "corgi-packages/corgi-emacs-lisp/")
+#+end_src
 
 * corgi-stateline
 
@@ -1153,9 +1208,14 @@ I suppose I'm just using corgi-stateline
   ;; Change the color of the modeline based on the Evil state (e.g. green when
   ;; in insert state)
   (use-package corgi-stateline
+    :load-path "corgi-packages/corgi-stateline/"
     :config
     (global-corgi-stateline-mode))
 #+end_src
+
+#+begin_src emacs-lisp :noweb-ref pembrokensis-stateline
+#+end_src
+
 
 * corgi-bindings
 
@@ -1165,6 +1225,12 @@ I suppose I'm just using corgi-stateline
   ;; (use-package corgi-bindings)
 #+end_src
 
+#+begin_src emacs-lisp :noweb-ref pembrokensis-corgi-bindings
+      (use-package corgi-bindings
+        :load-path "corgi-packages/corgi-bindings/")
+#+end_src
+
+
 * corkey
 
 #+begin_src emacs-lisp
@@ -1173,23 +1239,25 @@ I suppose I'm just using corgi-stateline
   ;; f e s' `SPC f e S')
   ;; Put this last here, otherwise keybindings for commands that aren't loaded
   ;; yet won't be active.
-  ;; (use-package corkey
-  ;;   :config
-  ;;   (corkey-mode 1)
-  ;;   ;; Automatically pick up keybinding changes
-  ;;   (corkey/load-and-watch))
+  (use-package corkey
+    :vc ( :url "https://github.com/corgi-emacs/corkey.git")
+    :config
+    (corkey-mode 1)
+    ;; Automatically pick up keybinding changes
+    (corkey/load-and-watch))
+#+end_src
+
+#+begin_src emacs-lisp :noweb-ref pembrokensis-corkey
 #+end_src
 
 * evil-escape
 
-#+begin_src emacs-lisp
+#+begin_src emacs-lisp :noweb-ref evil-escape
   ;; Customizable key sequence to escape from insert state. Defaults to `fd'
-  ;; (use-package evil-escape
-  ;;   :straight (evil-escape :type git :host github :repo "syl20bnr/evil-escape"
-  ;;                          :fork (:host github :repo "emacsorphanage/evil-escape"))
-  ;;   :diminish evil-escape-mode
-  ;;   :config
-  ;;   (evil-escape-mode))
+  (use-package evil-escape
+    :diminish evil-escape-mode
+    :config
+    (evil-escape-mode))
 #+end_src
 
 * Javascript
