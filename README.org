@@ -464,9 +464,9 @@ This is stolen from [[https://github.com/corgi-emacs/corgi-packages/blob/main/co
     (global-font-lock-mode t))
 #+end_src
 
-* Editor
+* Pembrokensis Editor
 
-This is stolen from [[https://github.com/corgi-emacs/corgi-packages/blob/main/corgi-editor/corgi-editor.el][corgi-editor]]
+This is stolen from [[https://github.com/corgi-emacs/corgi-packages/blob/main/corgi-editor/corgi-editor.el][corgi-editor]]. The important thing here is setting up [[https://github.com/emacs-evil/evil][evil]].
 
 #+begin_src emacs-lisp :noweb-ref pembrokensis-editor
   ;; UI configuration for that Corgi-feel. This sets up a bunch of packages like
