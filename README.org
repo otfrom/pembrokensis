@@ -29,6 +29,12 @@ the one who inspired me to get back into it. Howard's [[https://github.com/howar
 inspire you well. I'm going to be borrowing a lot from [[https://protesilaos.com/][Prot]]'s [[https://protesilaos.com/emacs/dotemacs][literate emacs
 config]] too.
 
+I learned about Howard's work via [[https://emacsconf.org/][emacsconf]], which is organised by [[https://sachachua.com/blog/][Sacha Chua]]
+who has been an inspiration to me and the reason why I moved away from
+[[https://github.com/jwiegley/remember/blob/master/remember.el][remember.el]] to org-mode in the first place. I've always found the stuff in
+Sacha's config a bit intimidating, but there is still [[https://sachachua.com/dotemacs/index.html][a lot of inspiration]] to be
+had and of course Sacha's [[https://sachachua.com/blog/category/emacs-news/][Emacs Weekly News]].
+
 Thanks to [[https://mathstodon.xyz/@anemofilia/113803804376833799][anemofilia]] I've learned more about [[https://orgmode.org/manual/Noweb-Reference-Syntax.html][noweb syntax]] and how [[https://social.boiledscript.com/@hako][hako]]
 configures [[https://codeberg.org/hako/Testament/src/branch/trunk/cfg/dorphine.org][dorphine]] and [[https://codeberg.org/hako/Testament/src/branch/trunk/cfg/gokuraku.org][gokuraku]] for Guix.
 
