@@ -23,11 +23,11 @@ Most of what we want to steal, or rather be inspired by, is in
 keyword]] in use-package so you don't need it for random sources from
 git forges.
 
-I'm doing this in a literate style because of a talk that [[https://github.com/bloat][Andrew
-Cowper]] gave at Skillsmatter (RIP) many years ago, but it was really
-[[https://howardism.org/][Howard Abrams]] who inspired me to get back into it. Howard has a rather
-[[https://github.com/howardabrams/dot-files][magisterial set of dot files]] that you can be inspired by as well. I'm
-going to be borrowing a lot from [[https://protesilaos.com/][Prot]]'s [[https://protesilaos.com/emacs/dotemacs][literate emacs config]] too.
+[[https://github.com/bloat][Andrew Cowper]] gave at Skillsmatter (RIP) many years ago, which is why I started
+making literate configs and doing literate programming, but [[https://howardism.org/][Howard Abrams]] was
+the one who inspired me to get back into it. Howard's [[https://github.com/howardabrams/dot-files][magisterial dot files]] can
+inspire you well. I'm going to be borrowing a lot from [[https://protesilaos.com/][Prot]]'s [[https://protesilaos.com/emacs/dotemacs][literate emacs
+config]] too.
 
 Thanks to [[https://mathstodon.xyz/@anemofilia/113803804376833799][anemofilia]] I've learned more about [[https://orgmode.org/manual/Noweb-Reference-Syntax.html][noweb syntax]] and how [[https://social.boiledscript.com/@hako][hako]]
 configures [[https://codeberg.org/hako/Testament/src/branch/trunk/cfg/dorphine.org][dorphine]] and [[https://codeberg.org/hako/Testament/src/branch/trunk/cfg/gokuraku.org][gokuraku]] for Guix.
