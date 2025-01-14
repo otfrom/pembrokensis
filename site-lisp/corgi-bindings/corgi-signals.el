@@ -5,12 +5,12 @@
 ;; the major (or sometimes minor) mode. This is how Corgi achieves consistency
 ;; in key bindings across languages.
 
-((default ( :command/execute counsel-M-x
+((default ( :command/execute consult-mode-command ;; counsel-M-x
 
-            :file/open counsel-find-file
+            :file/open find-file ;; counsel-find-file
             :file/save save-buffer
             :file/save-all evil-write-all
-            :file/open-recent counsel-recentf
+            :file/open-recent consult-recent-file ;; counsel-recentf
 
             :buffer/switch switch-to-buffer
             :buffer/incremental-search swiper
@@ -18,10 +18,10 @@
             :project/open-file projectile-find-file
             :project/switch projectile-switch-project
             :project/kill projectile-kill-buffers
-            :project/incremental-search counsel-git-grep
+            :project/incremental-search consult-ripgrep ;; counsel-git-grep
             :project/switch-buffer projectile-switch-to-buffer
 
-            :jump/identifier counsel-imenu
+            :jump/identifier consult-imenu ;; counsel-imenu
             :jump/character avy-goto-char
             :jump/last-change goto-last-change
 
