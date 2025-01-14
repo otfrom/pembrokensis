@@ -631,7 +631,7 @@ As I'm still learning really.
     (setq which-key-sort-order 'which-key-prefix-then-key-order))
 #+end_src
 
-** ace-window instead of winum
+** ace-window in addition to winum
 
 Corgi uses [[https://github.com/corgi-emacs/corgi-packages/blob/36254ff552d0ee0f5c50d6a29ecfd75b0cf503a1/corgi-editor/corgi-editor.el#L56][winum]] to go to different windows, I'd like to use
 [[https://github.com/abo-abo/ace-window][ace-window]] instead as we already have avy for other jumping.
@@ -655,9 +655,17 @@ pack it into a single key binding, similar to other-window.
   epkgs.ace-window
 #+end_src
 
-
 #+begin_src emacs-lisp :noweb-ref pembrokensis-editor
   (use-package ace-window)
+#+end_src
+
+#+begin_src nix :noweb-ref epkgs
+  epkgs.winum
+#+end_src
+
+#+begin_src emacs-lisp :noweb-ref pembrokensis-editor
+  (use-package winum
+    :config (winum-mode))
 #+end_src
 
 ** smartparens rather than paredit
