@@ -608,6 +608,14 @@ This package uses Evil as its vi layer.
     :config (global-evil-surround-mode 1))
 #+end_src
 
+** evil-tutor
+
+As I'm still learning really.
+
+#+begin_src emacs-lisp :noweb-ref pembrokensis-editor
+  (use-package evil-tutor
+    :after (evil))
+#+end_src
 
 ** which-key
 
