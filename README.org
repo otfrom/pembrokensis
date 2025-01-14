@@ -1338,11 +1338,8 @@ I suppose I'm just using corgi-stateline
 #+end_src
 
 #+begin_src emacs-lisp :noweb-ref pembrokensis-corgi-bindings
-  ;; (use-package corgi-bindings
-  ;;   :load-path "corgi-packages/corgi-bindings/")
-
-  ;; corgi-keys.el, corgi-signals.el, user-keys.el, and user-signals.el are
-  ;; available directly rather than via the corgi-bindings package
+  (use-package corgi-bindings
+    :load-path "site-lisp/corgi-bindings/")
 #+end_src
 
 
