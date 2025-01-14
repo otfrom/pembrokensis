@@ -139,6 +139,7 @@ I think I can get away with the following:
 
   ;;; Other Modes
   <<magit>>
+  <<keycast>>
 
   ;;; Coda
   <<init-coda>>
