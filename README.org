@@ -911,10 +911,10 @@ what lines in this I want to uncomment later
 It looks like it wants to use ~savehist-mode~ as well for things.
 
  #+begin_src emacs-lisp :noweb-ref pembrokensis-completion-ui
-;; Persist history over Emacs restarts. Vertico sorts by history position.
-(use-package savehist
-  :init
-  (savehist-mode))
+   ;; Persist history over Emacs restarts. Vertico sorts by history position.
+   (use-package savehist
+     :init
+     (savehist-mode))
 #+end_src
 
 And it wants us to configure some of the base things in Emacs itself
