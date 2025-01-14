@@ -79,6 +79,21 @@ need to set things like our package installation strategy.
 
 This is the bulk of the emacs configuration.
 
+I think I can get away with the following:
+
+ - get evil basics working
+ - I can do my own clojure and emacs-lisp set up (along with everything else)
+ - corkey using ~package-vc-install~
+ - my own copies of corgi-keys.el, corgi-signals.el, user-keys.el, and
+   user-signals.el on my loadpath, as that is all the corgi-bindings is
+   providing.
+ - my own copy of corgi-stateline, partly because I'd like it to use colours
+   from ef-themes or something else. What I really want is for the whole colour
+   scheme of an editable window to change, but I still need to figure out how to
+   change the scheme of a single window.
+ - I can do my own
+
+
 #+begin_src emacs-lisp :tangle init.el :noweb yes
   ;;; init --- Initialise emacs
 
