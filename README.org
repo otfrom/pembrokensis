@@ -196,6 +196,7 @@ copy over. I'd like to produce that from here.
 
   ;;; Other Modes
   <<magit>>
+  <<keycast>>
 
   ;;; Coda
   <<init-coda>>
@@ -1375,6 +1376,18 @@ I suppose I'm just using corgi-stateline
     :diminish evil-escape-mode
     :config
     (evil-escape-mode))
+#+end_src
+
+* keycast
+
+#+begin_src nix :noweb-ref epkgs
+  epkgs.keycast
+#+end_src
+
+
+#+begin_src emacs-lisp :noweb-ref keycast
+  (use-package keycast
+    :config (keycast-tab-bar-mode))
 #+end_src
 
 * Javascript
