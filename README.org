@@ -274,6 +274,14 @@ copy over. I'd like to produce that from here.
 
 ** TODO nix configuration
 
+Well, part of the nix configuration anyway, the bit that install all the emacs
+packages I need.
+
+#+begin_src nix :tangle config-fragment.nix :noweb yes
+  <<epkgs>>
+#+end_src
+
+
 * Package Installation
 
 If we're on a wild west distro like [[https://ubuntu.com/][Ubuntu]] then we're going to want to
@@ -497,6 +505,10 @@ This is stolen from [[https://github.com/corgi-emacs/corgi-packages/blob/main/co
 
 ** avy for jumping around
 
+#+begin_src nix :noweb-ref epkgs
+  epkgs.avy
+#+end_src
+
 #+begin_src emacs-lisp :noweb-ref pembrokensis-editor
   (use-package avy)
 #+end_src
@@ -505,6 +517,11 @@ This is stolen from [[https://github.com/corgi-emacs/corgi-packages/blob/main/co
 
 I'm not sure about [[https://codeberg.org/ideasman42/emacs-undo-fu][undo-fu]]. According to the [[https://github.com/emacs-evil/evil?tab=readme-ov-file#dependencies][dependencies]] of evil we
 either need this or [[https://gitlab.com/tsc25/undo-tree][undo-tree]].
+
+#+begin_src nix :noweb-ref epkgs
+  epkgs.undo-fu
+#+end_src
+
 
 #+begin_src emacs-lisp :noweb-ref pembrokensis-editor
   (use-package undo-fu)
@@ -517,6 +534,10 @@ either need this or [[https://gitlab.com/tsc25/undo-tree][undo-tree]].
 features of [[https://github.com/emacs-evil/evil][Vim]], and provides facilities for writing custom
 extensions. Also see our page on [[https://www.emacswiki.org/emacs/Evil][EmacsWiki]].
 #+end_quote
+
+#+begin_src nix :noweb-ref epkgs
+  epkgs.evil
+#+end_src
 
 
 #+begin_src emacs-lisp :noweb-ref pembrokensis-editor
@@ -553,6 +574,10 @@ Eshell and more.
 Warning: Expect some default bindings to change in the future.
 #+end_quote
 
+#+begin_src nix :noweb-ref epkgs
+  epkgs.evil-collection
+#+end_src
+
 #+begin_src emacs-lisp :noweb-ref pembrokensis-editor
   (use-package evil-collection
     :after (evil)
@@ -570,6 +595,11 @@ wrapped into a minor mode.
 This package uses Evil as its vi layer.
 #+end_quote
 
+#+begin_src nix :noweb-ref epkgs
+  epkgs.evil-surround
+#+end_src
+
+
 #+begin_src emacs-lisp :noweb-ref pembrokensis-editor
   (use-package evil-surround
     :config (global-evil-surround-mode 1))
@@ -577,6 +607,10 @@ This package uses Evil as its vi layer.
 
 
 ** which-key
+
+#+begin_src nix :noweb-ref epkgs
+  epkgs.which-key
+#+end_src
 
 #+begin_src emacs-lisp :noweb-ref pembrokensis-editor
   (use-package which-key
@@ -606,6 +640,11 @@ This package aims to take the speed and predictability of windmove and
 pack it into a single key binding, similar to other-window.
 #+end_quote
 
+#+begin_src nix :noweb-ref epkgs
+  epkgs.ace-window
+#+end_src
+
+
 #+begin_src emacs-lisp :noweb-ref pembrokensis-editor
   (use-package ace-window)
 #+end_src
@@ -626,6 +665,11 @@ based eventually.
 
 [[https://github.com/Fuco1/smartparens][smartparens]] tries to be a superset of all the other electric pair
 modes.
+
+#+begin_src nix :noweb-ref epkgs
+  epkgs.smartparens
+#+end_src
+
 
 #+begin_src emacs-lisp :noweb-ref pembrokensis-editor
   (use-package smartparens
@@ -650,6 +694,11 @@ works under the following principles:
  - Provide but don't force additional features on the user.
 #+end_quote
 
+#+begin_src nix :noweb-ref epkgs
+  epkgs.evil-cleverparens
+#+end_src
+
+
 #+begin_src emacs-lisp :noweb-ref pembrokensis-editor
   ;; We don't actually enable cleverparens, because most of their bindings we
   ;; don't want, we install our own bindings for specific sexp movements
@@ -662,6 +711,11 @@ works under the following principles:
 
 [[https://github.com/Malabarba/aggressive-indent-mode][Malabarba/aggressive-indent-mode]] Emacs minor mode that keeps your code
 always indented. More reliable than electric-indent-mode.
+
+#+begin_src nix :noweb-ref epkgs
+  epkgs.aggressive-indent
+#+end_src
+
 
 #+begin_src emacs-lisp :noweb-ref pembrokensis-editor
   (use-package aggressive-indent
@@ -680,6 +734,10 @@ always indented. More reliable than electric-indent-mode.
 ** rainbow-delimiters
 
 Because I like the colourful visual signal of what blocks go together.
+
+#+begin_src nix :noweb-ref epkgs
+  epkgs.rainbow-delimiters
+#+end_src
 
 #+begin_src emacs-lisp :noweb-ref pembrokensis-editor
   (use-package rainbow-delimiters
@@ -708,17 +766,30 @@ indexes (TAGS) or persistent background processes. Dumb Jump requires
 at least GNU Emacs 24.3.
 #+end_quote
 
+#+begin_src nix :noweb-ref epkgs
+  epkgs.dumb-jump
+#+end_src
+
+
 #+begin_src emacs-lisp :noweb-ref pembrokensis-editor
   (use-package dumb-jump)
 #+end_src
 
 ** goto-last-change
 
+#+begin_src nix :noweb-ref epkgs
+  epkgs.goto-chg
+#+end_src
+
 #+begin_src emacs-lisp :noweb-ref pembrokensis-editor
   (use-package goto-chg)
 #+end_src
 
 ** expand-region
+
+#+begin_src nix :noweb-ref epkgs
+  epkgs.expand-region
+#+end_src
 
 #+begin_src emacs-lisp :noweb-ref pembrokensis-editor
   (use-package expand-region)
@@ -732,6 +803,10 @@ at least GNU Emacs 24.3.
 #+end_src
 
 ** xclip
+
+#+begin_src nix :noweb-ref epkgs
+  epkgs.xclip
+#+end_src
 
 #+begin_src emacs-lisp :noweb-ref pembrokensis-editor
   (when (and (not (display-graphic-p))
@@ -812,6 +887,10 @@ highlight the places where we don’t use those suggestions.
 Let’s get the vertico basics up and running. I’ll have a think about
 what lines in this I want to uncomment later
 
+#+begin_src nix :noweb-ref epkgs
+  epkgs.vertico
+#+end_src
+
 #+begin_src emacs-lisp :noweb-ref pembrokensis-completion-ui
 ;; Enable vertico
 (use-package vertico
@@ -881,6 +960,10 @@ And it wants us to configure some of the base things in Emacs itself
 
 And it wants us to put in [[https://github.com/oantolin/orderless][orderless]] too
 
+#+begin_src nix :noweb-ref epkgs
+  epkgs.orderless
+#+end_src
+
 #+begin_src emacs-lisp :noweb-ref pembrokensis-completion-ui
 ;; Optionally use the `orderless' completion style.
 (use-package orderless
@@ -904,6 +987,9 @@ in orderless.
 
  gives us a lot more information about out minibuffer completions.
 
+#+begin_src nix :noweb-ref epkgs
+  epkgs.marginalia
+#+end_src
 #+begin_src emacs-lisp :noweb-ref pembrokensis-completion-ui
 ;; Enable rich annotations using the Marginalia package
 (use-package marginalia
@@ -951,6 +1037,10 @@ from other sources.
 #+end_quote
 
 [[https://github.com/minad/consult][consult]]
+
+#+begin_src nix :noweb-ref epkgs
+  epkgs.consult
+#+end_src
 
 #+begin_src emacs-lisp :noweb-ref pembrokensis-completion-ui
 ;; Example configuration for Consult
@@ -1075,6 +1165,11 @@ from other sources.
 
 ** Embark
 
+#+begin_src nix :noweb-ref epkgs
+  epkgs.embark
+  epkgs.embark-consult
+#+end_src
+
 #+begin_src emacs-lisp :noweb-ref pembrokensis-completion-ui
 (use-package embark
   :bind
@@ -1128,6 +1223,9 @@ in-buffer completion counterpart of the Vertico minibuffer UI.
 
 I’m probably going to want to activate ~corfu-cycle~.
 
+#+begin_src nix :noweb-ref epkgs
+  epkgs.corfu
+#+end_src
 #+begin_src emacs-lisp :noweb-ref pembrokensis-completion-ui
 (use-package corfu
   ;; Optional customizations
@@ -1273,6 +1371,10 @@ I suppose I'm just using corgi-stateline
 
 * evil-escape
 
+#+begin_src nix :noweb-ref epkgs
+  epkgs.evil-escape
+#+end_src
+
 #+begin_src emacs-lisp :noweb-ref evil-escape
   ;; Customizable key sequence to escape from insert state. Defaults to `fd'
   (use-package evil-escape
@@ -1292,6 +1394,11 @@ I suppose I'm just using corgi-stateline
 * Magit and VC modes
 
 ** Magit
+
+#+begin_src nix :noweb-ref epkgs
+  epkgs.magit
+#+end_src
+
 
 #+NAME: magit
 #+begin_src emacs-lisp
