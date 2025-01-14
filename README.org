@@ -108,6 +108,7 @@ I think I can get away with the following:
 
   ;;; Defaults
   <<pembrokensis-defaults>>
+  <<color-theme>>
 
   ;;; Editor
   <<pembrokensis-editor>>
@@ -846,6 +847,16 @@ at least GNU Emacs 24.3.
       ;; Emacs 27.1+ only
       (add-hook 'window-buffer-change-functions #'corgi-editor/-on-buffer-change)
     (add-hook 'post-command-hook #'corgi-editor/-on-buffer-change))
+#+end_src
+
+* color-theme
+
+I really like the ef-themes from Prot. Let's use them.
+
+#+begin_src emacs-lisp :noweb-ref color-theme
+  (use-package ef-themes
+    :init (setq ef-themes-to-toggle '(ef-bio ef-rosa))
+    :config (ef-themes-select 'ef-bio))
 #+end_src
 
 * Completion UI
