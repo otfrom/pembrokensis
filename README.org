@@ -494,6 +494,15 @@ This is stolen from [[https://github.com/corgi-emacs/corgi-packages/blob/main/co
   (use-package font-core
     :config
     (global-font-lock-mode t))
+
+  (use-package display-line-numbers
+    :config
+    (global-display-line-numbers-mode)
+    (setq-default display-line-numbers-type 'visual))
+
+  (use-package display-fill-column-indicator
+    :config
+    (global-display-fill-column-indicator-mode))
 #+end_src
 
 * Pembrokensis Editor
