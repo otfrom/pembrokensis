@@ -1338,8 +1338,9 @@ This is stolen from corgi-clojure
 #+end_src
 
 #+begin_src emacs-lisp :noweb-ref pembrokensis-clojure
-    (use-package corgi-clojure
-      :load-path "corgi-packages/corgi-clojure/")
+  ;;; TODO Put my own clojure config here
+  ;; (use-package corgi-clojure
+  ;;   :load-path "corgi-packages/corgi-clojure/")
 #+end_src
 
 * Emacs Lisp
@@ -1354,18 +1355,19 @@ This is stolen from corgi-emacs-lisp
 #+end_src
 
 #+begin_src emacs-lisp :noweb-ref pembrokensis-emacs-lisp
-    (use-package corgi-emacs-lisp
-      :load-path "corgi-packages/corgi-emacs-lisp/")
+  ;;; TODO pub my own emacs-lisp config here
+  ;; (use-package corgi-emacs-lisp
+  ;;   :load-path "corgi-packages/corgi-emacs-lisp/")
 #+end_src
 
 * corgi-stateline
 
 I suppose I'm just using corgi-stateline
 
-#+begin_src emacs-lisp
+#+begin_src emacs-lisp :noweb-ref pembrokensis-stateline
   (use-package corgi-stateline
     :load-path "site-lisp/"
-    :config (corgi-stateline 1))
+    :config (global-corgi-stateline-mode))
 #+end_src
 
 * corgi-bindings
@@ -1380,7 +1382,6 @@ I suppose I'm just using corgi-stateline
   (use-package corgi-bindings
     :load-path "site-lisp/corgi-bindings/")
 #+end_src
-
 
 * corkey
 
